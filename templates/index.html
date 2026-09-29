@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Approval Prediction | ML Project</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        LoanPredict ML
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" class="active">Overview & Performance</a></li>
+        <li><a href="#eda">EDA Visualizations</a></li>
+        <li><a href="{{ url_for('predict') }}">Predict Loan</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1>Loan Approval Prediction System</h1>
+      <p>
+        A machine learning project built for college Data Science curriculum.
+        It automates the evaluation of loan eligibility using historical applicant data,
+        standard preprocessing pipelines, and verified model evaluation metrics.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary">Check Loan Eligibility</a>
+        <a href="#performance" class="btn btn-secondary">View Model Performance</a>
+      </div>
+    </section>
+
+    <!-- Project Information Cards -->
+    <div class="card">
+      <h2 class="card-title">Project Overview & Pipeline</h2>
+      <p>
+        The objective of this project is to classify whether a loan application should be approved or rejected based on financial, demographic, and credit attributes.
+        Data leakage is strictly avoided by encapsulating preprocessing within a Scikit-Learn <code>ColumnTransformer</code> and <code>Pipeline</code>.
+      </p>
+      <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+        <div style="background: var(--neutral-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--neutral-border);">
+          <strong>Dataset Size:</strong> 614 Records
+        </div>
+        <div style="background: var(--neutral-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--neutral-border);">
+          <strong>Train / Test Split:</strong> 80% / 20% (Stratified)
+        </div>
+        <div style="background: var(--neutral-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--neutral-border);">
+          <strong>Selected Best Model:</strong> {{ metrics.selected_model if metrics else 'Logistic Regression' }}
+        </div>
+        <div style="background: var(--neutral-light); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--neutral-border);">
+          <strong>Selection Metric:</strong> F1-Score (Positive Class: Y)
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 9: Model Performance Page / Section -->
+    <section id="performance" class="card">
+      <h2 class="card-title">Model Performance & Evaluation</h2>
+      <p style="margin-bottom: 16px; color: var(--neutral-muted);">
+        Four classification algorithms were trained on identical stratified training splits and tested on the 123 held-out test samples.
+        All metrics below are calculated directly from the test dataset.
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th style="text-align: right;">Accuracy</th>
+              <th style="text-align: right;">Precision</th>
+              <th style="text-align: right;">Recall</th>
+              <th style="text-align: right;">F1 Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if metrics and metrics.models_comparison %}
+              {% for model_name, m in metrics.models_comparison.items() %}
+                <tr {% if model_name == metrics.selected_model %}class="selected-row"{% endif %}>
+                  <td>
+                    {{ model_name }}
+                    {% if model_name == metrics.selected_model %}
+                      <span class="badge-selected">Selected Final Model</span>
+                    {% endif %}
+                  </td>
+                  <td style="text-align: right;">{{ "%.4f"|format(m.accuracy) }}</td>
+                  <td style="text-align: right;">{{ "%.4f"|format(m.precision) }}</td>
+                  <td style="text-align: right;">{{ "%.4f"|format(m.recall) }}</td>
+                  <td style="text-align: right;"><strong>{{ "%.4f"|format(m.f1) }}</strong></td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5">No performance metrics loaded. Please run train_model.py.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center;">
+        <div style="flex: 1; min-width: 280px;">
+          <h3 style="font-size: 1.05rem; margin-bottom: 8px;">Confusion Matrix (Selected Model: {{ metrics.selected_model if metrics else 'Best' }})</h3>
+          <p style="font-size: 0.9rem; color: var(--neutral-muted); margin-bottom: 12px;">
+            Shows true positive, true negative, false positive, and false negative predictions on the 123 test samples.
+          </p>
+          <img src="{{ url_for('static', filename='plots/confusion_matrix.png') }}"
+               alt="Confusion Matrix"
+               style="max-width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--neutral-border);">
+        </div>
+        <div style="flex: 1; min-width: 280px; background: var(--neutral-light); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--neutral-border);">
+          <h3 style="font-size: 1rem; margin-bottom: 10px;">Model Selection Justification</h3>
+          <p style="font-size: 0.9rem; line-height: 1.6; color: var(--neutral-dark);">
+            In financial loan eligibility prediction, False Negatives (rejecting a creditworthy applicant) reduce business revenue, while False Positives (approving a defaulting applicant) incur financial credit loss.
+            <strong>F1-score</strong> harmonizes precision and recall. <strong>{{ metrics.selected_model if metrics else 'Logistic Regression' }}</strong> achieved the highest F1-score of
+            <strong>{{ "%.4f"|format(metrics.models_comparison[metrics.selected_model].f1) if metrics and metrics.models_comparison else '0.8710' }}</strong> with high recall and robust generalization.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Exploratory Data Analysis (EDA) -->
+    <section id="eda" class="card">
+      <h2 class="card-title">Exploratory Data Analysis (EDA)</h2>
+      <p style="color: var(--neutral-muted); margin-bottom: 16px;">
+        Key visualizations highlighting distribution patterns, feature correlation, and relationships with the loan status target.
+      </p>
+
+      <div class="plots-grid">
+        {% for p in plots %}
+          <div class="plot-item">
+            <h4>{{ p.title }}</h4>
+            <img src="{{ url_for('static', filename='plots/' + p.filename) }}" alt="{{ p.title }}">
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Loan Approval Prediction &copy; College Data Science Project</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Eligibility Prediction Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        LoanPredict ML
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}">Overview & Performance</a></li>
+        <li><a href="{{ url_for('index') }}#eda">EDA Visualizations</a></li>
+        <li><a href="{{ url_for('predict') }}" class="active">Predict Loan</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card" style="max-width: 800px; margin: 0 auto;">
+      <h2 class="card-title">Loan Applicant Eligibility Form</h2>
+      <p style="color: var(--neutral-muted); margin-bottom: 20px;">
+        Provide the applicant details below. All fields correspond strictly to the variables in the loan dataset.
+      </p>
+
+      <form action="{{ url_for('predict') }}" method="POST">
+        <div class="form-grid">
+          
+          <!-- Gender -->
+          <div class="form-group">
+            <label for="Gender">Gender</label>
+            <select name="Gender" id="Gender" class="form-control" required>
+              <option value="Male" selected>Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+
+          <!-- Married -->
+          <div class="form-group">
+            <label for="Married">Marital Status</label>
+            <select name="Married" id="Married" class="form-control" required>
+              <option value="Yes" selected>Yes (Married)</option>
+              <option value="No">No (Single / Unmarried)</option>
+            </select>
+          </div>
+
+          <!-- Dependents -->
+          <div class="form-group">
+            <label for="Dependents">Number of Dependents</label>
+            <select name="Dependents" id="Dependents" class="form-control" required>
+              <option value="0" selected>0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="4">3+ (Recorded as 4 in dataset)</option>
+            </select>
+          </div>
+
+          <!-- Education -->
+          <div class="form-group">
+            <label for="Education">Education</label>
+            <select name="Education" id="Education" class="form-control" required>
+              <option value="Graduate" selected>Graduate</option>
+              <option value="Not Graduate">Not Graduate</option>
+            </select>
+          </div>
+
+          <!-- Self Employed -->
+          <div class="form-group">
+            <label for="Self_Employed">Self Employed</label>
+            <select name="Self_Employed" id="Self_Employed" class="form-control" required>
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+
+          <!-- Applicant Income -->
+          <div class="form-group">
+            <label for="Applicant_Income">Applicant Income ($ / month)</label>
+            <input type="number" name="Applicant_Income" id="Applicant_Income"
+                   class="form-control" placeholder="e.g. 5000" min="0" step="1" required value="4500">
+          </div>
+
+          <!-- Coapplicant Income -->
+          <div class="form-group">
+            <label for="Coapplicant_Income">Co-applicant Income ($ / month)</label>
+            <input type="number" name="Coapplicant_Income" id="Coapplicant_Income"
+                   class="form-control" placeholder="e.g. 1500" min="0" step="any" required value="1500">
+          </div>
+
+          <!-- Loan Amount -->
+          <div class="form-group">
+            <label for="Loan_Amount">Loan Amount (in Thousands $)</label>
+            <input type="number" name="Loan_Amount" id="Loan_Amount"
+                   class="form-control" placeholder="e.g. 120" min="1" step="1" required value="130">
+          </div>
+
+          <!-- Loan Amount Term -->
+          <div class="form-group">
+            <label for="Loan_Amount_Term">Loan Term (Months)</label>
+            <select name="Loan_Amount_Term" id="Loan_Amount_Term" class="form-control" required>
+              <option value="360" selected>360 months (30 years)</option>
+              <option value="300">300 months (25 years)</option>
+              <option value="240">240 months (20 years)</option>
+              <option value="180">180 months (15 years)</option>
+              <option value="120">120 months (10 years)</option>
+              <option value="84">84 months (7 years)</option>
+              <option value="60">60 months (5 years)</option>
+              <option value="36">36 months (3 years)</option>
+              <option value="12">12 months (1 year)</option>
+            </select>
+          </div>
+
+          <!-- Credit History -->
+          <div class="form-group">
+            <label for="Credit_History">Credit History</label>
+            <select name="Credit_History" id="Credit_History" class="form-control" required>
+              <option value="1" selected>Meets credit guidelines (Good / 1.0)</option>
+              <option value="0">Does not meet guidelines (Poor / 0.0)</option>
+            </select>
+          </div>
+
+          <!-- Property Area -->
+          <div class="form-group">
+            <label for="Property_Area">Property Area</label>
+            <select name="Property_Area" id="Property_Area" class="form-control" required>
+              <option value="Semiurban" selected>Semiurban</option>
+              <option value="Urban">Urban</option>
+              <option value="Rural">Rural</option>
+            </select>
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-submit">Submit Application for Evaluation</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>Loan Approval Prediction &copy; College Data Science Project</p>
+  </footer>
+
+</body>
+</html>
